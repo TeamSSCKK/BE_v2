@@ -1,0 +1,5 @@
+project_id = "oufchidafmrxgympbcqo"
+
+[functions.health]
+verify_jwt = false
+

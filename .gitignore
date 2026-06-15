@@ -1,0 +1,16 @@
+# Local secrets
+.env
+.env.local
+.env.*.local
+
+# Supabase local state
+.supabase/
+supabase/.branches/
+supabase/.temp/
+
+# Editors and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
