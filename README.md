@@ -91,6 +91,7 @@ https://oufchidafmrxgympbcqo.supabase.co/functions/v1/health
 - `202606150002_upgrade_existing_schema.sql`: 기존 `DB SQL.txt` 구조를 추천 API에 맞게 확장
 - `202606150003_fix_recommendation_metric_columns.sql`: 기존 컬럼과 충돌하지 않는 분 단위 추천 지표 추가
 - `202606150004_seoul_transit_hubs.sql`: 서울 전체 지하철역 후보 테이블과 초기 seed 추가
+- `202606150005_restaurant_recommendation_fields.sql`: 식당 검색 링크·순위 필드 추가
 
 Supabase CLI 연결 후 적용합니다.
 
@@ -108,6 +109,16 @@ supabase functions serve recommend-places --env-file .env.local
 ```
 
 요청·응답과 추천 점수 계산식은 [`docs/place-recommendation-api.md`](docs/place-recommendation-api.md)를 참고합니다.
+
+## 식당 추천 API
+
+식당 추천 함수는 `supabase/functions/recommend-restaurants`에 있습니다.
+
+```powershell
+supabase functions serve recommend-restaurants --env-file .env.local
+```
+
+요청·응답과 식당 점수 계산식은 [`docs/restaurant-recommendation-api.md`](docs/restaurant-recommendation-api.md)를 참고합니다.
 
 ## 서울 지하철역 동기화
 
