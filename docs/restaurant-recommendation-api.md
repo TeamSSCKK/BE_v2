@@ -9,12 +9,13 @@ Content-Type: application/json
 
 ```json
 {
-  "meetingId": 1,
   "inviteCode": "초대 코드",
   "placeCandidateId": 10,
   "limit": 5
 }
 ```
+
+`meetingId`는 내부 관리·테스트 요청에서 선택적으로 사용할 수 있으며, 일반 프론트 요청은 초대 코드로 모임을 조회한다.
 
 `placeCandidateId`는 장소 투표 또는 주최자 결정으로 확정한 장소 후보 ID이다.
 

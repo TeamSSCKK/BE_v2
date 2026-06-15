@@ -43,28 +43,27 @@ Deno.serve(async (request) => {
 
   try {
     const body = (await request.json()) as RecommendationRequest;
-    if (!Number.isInteger(body.meetingId) || Number(body.meetingId) <= 0) {
-      throw new HttpError(400, "유효한 meetingId가 필요합니다.", "INVALID_MEETING_ID");
-    }
     if (!body.inviteCode) {
       throw new HttpError(400, "inviteCode가 필요합니다.", "INVITE_CODE_REQUIRED");
     }
 
-    const meetingId = Number(body.meetingId);
     const limit = Math.max(1, Math.min(body.limit ?? 5, 5));
     const supabase = createAdminClient();
 
-    const { data: meeting, error: meetingError } = await supabase
+    let meetingQuery = supabase
       .from("meeting")
       .select("meeting_id,status")
-      .eq("meeting_id", meetingId)
-      .eq("invite_link", body.inviteCode)
-      .maybeSingle();
+      .eq("invite_link", body.inviteCode);
+    if (Number.isInteger(body.meetingId) && Number(body.meetingId) > 0) {
+      meetingQuery = meetingQuery.eq("meeting_id", Number(body.meetingId));
+    }
+    const { data: meeting, error: meetingError } = await meetingQuery.maybeSingle();
 
     if (meetingError) throw meetingError;
     if (!meeting) {
       throw new HttpError(404, "모임을 찾을 수 없습니다.", "MEETING_NOT_FOUND");
     }
+    const meetingId = meeting.meeting_id;
     if (!["RECRUITING", "PLACE_RECOMMENDING"].includes(meeting.status)) {
       throw new HttpError(
         409,

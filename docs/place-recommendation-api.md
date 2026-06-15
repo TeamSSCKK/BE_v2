@@ -9,11 +9,12 @@ Content-Type: application/json
 
 ```json
 {
-  "meetingId": 1,
   "inviteCode": "초대 링크에 저장된 코드",
   "limit": 5
 }
 ```
+
+프론트엔드는 초대 코드만 전달할 수 있다. 내부 관리·테스트 요청에서는 선택적으로 `meetingId`를 함께 전달하여 두 값의 일치 여부를 검증할 수 있다.
 
 현재 모임 상태가 `RECRUITING` 또는 `PLACE_RECOMMENDING`이고, 위치를 입력한 참가자가 한 명 이상이어야 합니다.
 
@@ -71,7 +72,6 @@ Content-Type: application/json
 
 | HTTP | 코드 | 설명 |
 |---|---|---|
-| 400 | `INVALID_MEETING_ID` | `meetingId`가 올바르지 않음 |
 | 400 | `INVITE_CODE_REQUIRED` | 초대 코드 누락 |
 | 404 | `MEETING_NOT_FOUND` | 모임 또는 초대 코드가 일치하지 않음 |
 | 409 | `INVALID_MEETING_STATUS` | 추천을 생성할 수 없는 모임 상태 |
