@@ -21,6 +21,7 @@ export interface ParticipantTravel {
   participantName: string;
   minutes: number;
   transportType: TransportType;
+  calculationMethod?: "DISTANCE_FALLBACK" | "ODSAY";
 }
 
 export interface RankedPlace extends SeoulHub {
@@ -31,4 +32,3 @@ export interface RankedPlace extends SeoulHub {
   fairnessScore: number;
   memberTravels: ParticipantTravel[];
 }
-

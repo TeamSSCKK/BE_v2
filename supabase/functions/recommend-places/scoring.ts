@@ -50,6 +50,41 @@ function standardDeviation(values: number[], mean: number): number {
   return Math.sqrt(variance);
 }
 
+export function scorePlace(
+  hub: SeoulHub,
+  memberTravels: ParticipantTravel[],
+): Omit<RankedPlace, "rank"> {
+  const minutes = memberTravels.map((travel) => travel.minutes);
+  const averageMinutes = average(minutes);
+  const maxMinutes = Math.max(...minutes);
+  const deviation = standardDeviation(minutes, averageMinutes);
+
+  return {
+    ...hub,
+    averageMinutes: Math.round(averageMinutes),
+    maxMinutes,
+    standardDeviation: Number(deviation.toFixed(2)),
+    fairnessScore: Number(
+      (averageMinutes * 0.5 + maxMinutes * 0.25 + deviation * 0.25).toFixed(4),
+    ),
+    memberTravels,
+  };
+}
+
+export function sortRankedPlaces(
+  places: Array<Omit<RankedPlace, "rank">>,
+  limit = 5,
+): RankedPlace[] {
+  return places
+    .sort(
+      (left, right) =>
+        left.fairnessScore - right.fairnessScore ||
+        left.averageMinutes - right.averageMinutes,
+    )
+    .slice(0, Math.max(1, Math.min(limit, places.length)))
+    .map((place, index) => ({ ...place, rank: index + 1 }));
+}
+
 export function rankPlaces(
   origins: ParticipantOrigin[],
   hubs: readonly SeoulHub[],
@@ -57,38 +92,17 @@ export function rankPlaces(
 ): RankedPlace[] {
   if (origins.length === 0) return [];
 
-  return hubs
-    .map((hub) => {
+  const scoredPlaces = hubs.map((hub) => {
       const memberTravels: ParticipantTravel[] = origins.map((origin) => ({
         participantId: origin.participantId,
         participantName: origin.participantName,
         minutes: estimateTravelMinutes(haversineKm(origin, hub), origin.transportType),
         transportType: origin.transportType,
       }));
-      const minutes = memberTravels.map((travel) => travel.minutes);
-      const averageMinutes = average(minutes);
-      const maxMinutes = Math.max(...minutes);
-      const deviation = standardDeviation(minutes, averageMinutes);
+      return scorePlace(hub, memberTravels);
+    });
 
-      return {
-        ...hub,
-        rank: 0,
-        averageMinutes: Math.round(averageMinutes),
-        maxMinutes,
-        standardDeviation: Number(deviation.toFixed(2)),
-        fairnessScore: Number(
-          (averageMinutes * 0.5 + maxMinutes * 0.25 + deviation * 0.25).toFixed(4),
-        ),
-        memberTravels,
-      };
-    })
-    .sort(
-      (left, right) =>
-        left.fairnessScore - right.fairnessScore ||
-        left.averageMinutes - right.averageMinutes,
-    )
-    .slice(0, Math.max(1, Math.min(limit, hubs.length)))
-    .map((place, index) => ({ ...place, rank: index + 1 }));
+  return sortRankedPlaces(scoredPlaces, Math.min(limit, hubs.length));
 }
 
 export function selectNearbyHubs(

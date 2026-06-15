@@ -2,6 +2,7 @@ import { errorResponse, HttpError, jsonResponse, optionsResponse } from "../_sha
 import { createAdminClient } from "../_shared/supabase.ts";
 import type { ParticipantOrigin, SeoulHub, TransportType } from "./model.ts";
 import { rankPlaces, selectNearbyHubs } from "./scoring.ts";
+import { rankPlacesWithODsay } from "./odsay-adapter.ts";
 import { SEOUL_HUBS } from "./seoul-hubs.ts";
 
 interface RecommendationRequest {
@@ -121,7 +122,21 @@ Deno.serve(async (request) => {
       }));
     const availableHubs = databaseHubs.length > 0 ? databaseHubs : SEOUL_HUBS;
     const nearbyHubs = selectNearbyHubs(origins, availableHubs, 30);
-    const rankedPlaces = rankPlaces(origins, nearbyHubs, limit);
+    const prefilteredHubs = rankPlaces(origins, nearbyHubs, 8).map((place) => ({
+      name: place.name,
+      category: place.category,
+      address: place.address,
+      latitude: place.latitude,
+      longitude: place.longitude,
+    }));
+    const rankedPlaces = Deno.env.get("ODSAY_API_KEY")
+      ? await rankPlacesWithODsay(origins, prefilteredHubs, limit)
+      : rankPlaces(origins, prefilteredHubs, limit);
+
+    const candidateCalculationMethod = (place: typeof rankedPlaces[number]) =>
+      place.memberTravels.every((travel) => travel.calculationMethod === "ODSAY")
+        ? "ODSAY"
+        : "DISTANCE_FALLBACK";
 
     const { error: statusError } = await supabase
       .from("meeting")
@@ -150,7 +165,7 @@ Deno.serve(async (request) => {
           travel_time_stddev_minutes: place.standardDeviation,
           recommendation_score: place.fairnessScore,
           recommendation_rank: place.rank,
-          calculation_method: "DISTANCE_FALLBACK",
+          calculation_method: candidateCalculationMethod(place),
           selected_for_vote_yn: true,
         })),
       )
@@ -173,7 +188,7 @@ Deno.serve(async (request) => {
         participant_id: travel.participantId,
         travel_minutes: travel.minutes,
         transport_type: travel.transportType,
-        calculation_method: "DISTANCE_FALLBACK",
+        calculation_method: travel.calculationMethod ?? "DISTANCE_FALLBACK",
       }));
     });
 
@@ -191,7 +206,11 @@ Deno.serve(async (request) => {
     if (readyError) throw readyError;
 
     return jsonResponse(request, {
-      calculationMethod: "DISTANCE_FALLBACK",
+      calculationMethod: rankedPlaces.every(
+          (place) => candidateCalculationMethod(place) === "ODSAY"
+        )
+        ? "ODSAY"
+        : "DISTANCE_FALLBACK",
       places: rankedPlaces.map((place) => ({
         id: String(savedIdByRank.get(place.rank)),
         name: place.name,

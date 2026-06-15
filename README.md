@@ -21,6 +21,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOi...
 NAVER_SEARCH_CLIENT_ID=네이버_검색_Client_ID
 NAVER_SEARCH_CLIENT_SECRET=네이버_검색_Client_Secret
 ODSAY_API_KEY=ODsay_API_Key
+ODSAY_REQUEST_ORIGIN=http://localhost:3000
 ```
 
 환경변수 작성 규칙:
