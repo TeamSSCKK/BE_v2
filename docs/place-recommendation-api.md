@@ -33,7 +33,7 @@ Content-Type: application/json
 
 ```json
 {
-  "calculationMethod": "DISTANCE_FALLBACK",
+  "calculationMethod": "ODSAY",
   "places": [
     {
       "id": "1",
