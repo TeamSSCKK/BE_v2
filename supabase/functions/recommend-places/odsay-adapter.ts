@@ -35,23 +35,36 @@ async function getPublicTransitMinutes(
   url.searchParams.set("SearchType", "0");
   url.searchParams.set("apiKey", apiKey);
 
-  const response = await fetch(url, {
-    headers: {
-      Origin: requestOrigin,
-      Referer: `${requestOrigin}/`,
-    },
-    signal: AbortSignal.timeout(8_000),
-  });
-  if (!response.ok) throw new Error(`ODsay HTTP ${response.status}`);
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Origin: requestOrigin,
+          Referer: `${requestOrigin}/`,
+        },
+        signal: AbortSignal.timeout(8_000),
+      });
+      if (!response.ok) throw new Error(`ODsay HTTP ${response.status}`);
 
-  const body = (await response.json()) as ODsayPathResponse;
-  if (body.error) throw new Error(body.error.message ?? body.error.code ?? "ODsay error");
+      const body = (await response.json()) as ODsayPathResponse;
+      if (body.error) {
+        throw new Error(body.error.message ?? body.error.code ?? "ODsay error");
+      }
 
-  const minutes = (body.result?.path ?? [])
-    .map((path) => path.info?.totalTime)
-    .filter((value): value is number => Number.isFinite(value));
-  if (minutes.length === 0) throw new Error("No public transit route found.");
-  return Math.min(...minutes);
+      const minutes = (body.result?.path ?? [])
+        .map((path) => path.info?.totalTime)
+        .filter((value): value is number => Number.isFinite(value));
+      if (minutes.length === 0) throw new Error("No public transit route found.");
+      return Math.min(...minutes);
+    } catch (error) {
+      lastError = error;
+      if (attempt < 3) {
+        await new Promise((resolve) => setTimeout(resolve, 300 * attempt));
+      }
+    }
+  }
+  throw lastError;
 }
 
 async function mapWithConcurrency<T, R>(
@@ -81,8 +94,8 @@ export async function rankPlacesWithODsay(
   hubs: SeoulHub[],
   limit: number,
 ): Promise<RankedPlace[]> {
-  const scored = await mapWithConcurrency(hubs, 3, async (hub) => {
-    const memberTravels = await mapWithConcurrency(origins, 4, async (origin) => {
+  const scored = await mapWithConcurrency(hubs, 1, async (hub) => {
+    const memberTravels = await mapWithConcurrency(origins, 1, async (origin) => {
       try {
         const minutes = origin.transportType === "PUBLIC"
           ? await getPublicTransitMinutes(origin, hub)
@@ -116,4 +129,3 @@ export async function rankPlacesWithODsay(
 
   return sortRankedPlaces(scored, limit);
 }
-
