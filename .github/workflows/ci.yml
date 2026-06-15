@@ -18,8 +18,7 @@ jobs:
           deno-version: v2.x
 
       - name: Type check
-        run: deno check supabase/functions/health/index.ts supabase/functions/recommend-places/index.ts
+        run: deno check supabase/functions/health/index.ts supabase/functions/recommend-places/index.ts supabase/functions/sync-seoul-stations/index.ts
 
       - name: Test
         run: deno test supabase/functions/recommend-places/scoring_test.ts
-

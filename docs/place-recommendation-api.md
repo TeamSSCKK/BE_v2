@@ -27,7 +27,7 @@ Content-Type: application/json
             + 이동시간 표준편차 × 0.25
 ```
 
-공정성 비용이 낮은 장소부터 추천합니다. 현재 MVP는 서울 대표 교통 거점과 거리 기반 예상 이동시간을 사용하며 응답의 `calculationMethod`는 `DISTANCE_FALLBACK`입니다. ODsay 실측 시간을 연결하면 같은 점수 계산식을 유지하고 계산 방식만 `ODSAY`로 변경합니다.
+공정성 비용이 낮은 장소부터 추천합니다. 참가자 중심점과 가까운 서울 지하철역 30개를 1차 후보로 선정한 뒤 점수를 계산합니다. 현재 이동시간은 거리 기반 예상값을 사용하며 응답의 `calculationMethod`는 `DISTANCE_FALLBACK`입니다. ODsay 실측 시간을 연결하면 같은 점수 계산식을 유지하고 계산 방식만 `ODSAY`로 변경합니다.
 
 ## 성공 응답
 
@@ -76,4 +76,3 @@ Content-Type: application/json
 | 404 | `MEETING_NOT_FOUND` | 모임 또는 초대 코드가 일치하지 않음 |
 | 409 | `INVALID_MEETING_STATUS` | 추천을 생성할 수 없는 모임 상태 |
 | 409 | `NO_PARTICIPANT_LOCATIONS` | 위치 입력 참가자가 없음 |
-

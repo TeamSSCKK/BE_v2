@@ -3,7 +3,7 @@ import {
   assertEquals,
 } from "jsr:@std/assert@1";
 import type { ParticipantOrigin, SeoulHub } from "./model.ts";
-import { haversineKm, rankPlaces } from "./scoring.ts";
+import { haversineKm, rankPlaces, selectNearbyHubs } from "./scoring.ts";
 
 Deno.test("같은 좌표 사이의 거리는 0이다", () => {
   const point = { latitude: 37.5665, longitude: 126.9780 };
@@ -74,3 +74,24 @@ Deno.test("반환 후보 수는 limit을 넘지 않는다", () => {
   assertEquals(rankPlaces(origins, hubs, 1).length, 1);
 });
 
+Deno.test("중심점 인근 후보를 선택하고 같은 역 이름은 중복 제거한다", () => {
+  const origins: ParticipantOrigin[] = [
+    {
+      participantId: 1,
+      participantName: "participant",
+      latitude: 37.5657,
+      longitude: 126.9770,
+      transportType: "PUBLIC",
+    },
+  ];
+  const hubs: SeoulHub[] = [
+    { name: "시청역", category: "1호선", address: "서울", latitude: 37.5657, longitude: 126.9770 },
+    { name: "시청", category: "2호선", address: "서울", latitude: 37.5658, longitude: 126.9768 },
+    { name: "강남역", category: "2호선", address: "서울", latitude: 37.4979, longitude: 127.0276 },
+  ];
+
+  const result = selectNearbyHubs(origins, hubs, 30);
+
+  assertEquals(result.length, 2);
+  assertEquals(result[0].name, "시청역");
+});

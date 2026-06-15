@@ -1,7 +1,7 @@
 import { errorResponse, HttpError, jsonResponse, optionsResponse } from "../_shared/http.ts";
 import { createAdminClient } from "../_shared/supabase.ts";
-import type { ParticipantOrigin, TransportType } from "./model.ts";
-import { rankPlaces } from "./scoring.ts";
+import type { ParticipantOrigin, SeoulHub, TransportType } from "./model.ts";
+import { rankPlaces, selectNearbyHubs } from "./scoring.ts";
 import { SEOUL_HUBS } from "./seoul-hubs.ts";
 
 interface RecommendationRequest {
@@ -22,6 +22,13 @@ interface ParticipantRow {
     longitude: number;
     preferred_transport: TransportType;
   } | null;
+}
+
+interface TransitHubRow {
+  station_name: string;
+  line_name: string;
+  latitude: number;
+  longitude: number;
 }
 
 Deno.serve(async (request) => {
@@ -97,7 +104,24 @@ Deno.serve(async (request) => {
       );
     }
 
-    const rankedPlaces = rankPlaces(origins, SEOUL_HUBS, limit);
+    const { data: transitHubRows, error: transitHubError } = await supabase
+      .from("seoul_transit_hub")
+      .select("station_name,line_name,latitude,longitude")
+      .eq("active_yn", true)
+      .limit(1000);
+    if (transitHubError) throw transitHubError;
+
+    const databaseHubs: SeoulHub[] = ((transitHubRows ?? []) as TransitHubRow[])
+      .map((hub) => ({
+        name: hub.station_name.endsWith("역") ? hub.station_name : `${hub.station_name}역`,
+        category: hub.line_name,
+        address: "서울특별시",
+        latitude: hub.latitude,
+        longitude: hub.longitude,
+      }));
+    const availableHubs = databaseHubs.length > 0 ? databaseHubs : SEOUL_HUBS;
+    const nearbyHubs = selectNearbyHubs(origins, availableHubs, 30);
+    const rankedPlaces = rankPlaces(origins, nearbyHubs, limit);
 
     const { error: statusError } = await supabase
       .from("meeting")

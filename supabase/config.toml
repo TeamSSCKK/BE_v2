@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.recommend-places]
 verify_jwt = false
+
+[functions.sync-seoul-stations]
+verify_jwt = false

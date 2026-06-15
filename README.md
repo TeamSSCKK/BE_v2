@@ -89,6 +89,7 @@ https://oufchidafmrxgympbcqo.supabase.co/functions/v1/health
 - `202606150001_initial_schema.sql`: 새 프로젝트용 전체 스키마
 - `202606150002_upgrade_existing_schema.sql`: 기존 `DB SQL.txt` 구조를 추천 API에 맞게 확장
 - `202606150003_fix_recommendation_metric_columns.sql`: 기존 컬럼과 충돌하지 않는 분 단위 추천 지표 추가
+- `202606150004_seoul_transit_hubs.sql`: 서울 전체 지하철역 후보 테이블과 초기 seed 추가
 
 Supabase CLI 연결 후 적용합니다.
 
@@ -106,3 +107,14 @@ supabase functions serve recommend-places --env-file .env.local
 ```
 
 요청·응답과 추천 점수 계산식은 [`docs/place-recommendation-api.md`](docs/place-recommendation-api.md)를 참고합니다.
+
+## 서울 지하철역 동기화
+
+서울 열린데이터광장의 `subwayStationMaster` API에서 서울 범위 역 좌표를 가져옵니다. `.env.local`과 Supabase Secrets에 아래 값을 등록해야 합니다.
+
+```env
+SEOUL_OPEN_DATA_API_KEY=서울_열린데이터광장_인증키
+SEOUL_DATA_SYNC_TOKEN=임의의_긴_관리자_토큰
+```
+
+동기화 함수 호출 시 `x-sync-token` 헤더에 동일한 관리자 토큰을 전달합니다.

@@ -91,3 +91,26 @@ export function rankPlaces(
     .map((place, index) => ({ ...place, rank: index + 1 }));
 }
 
+export function selectNearbyHubs(
+  origins: ParticipantOrigin[],
+  hubs: readonly SeoulHub[],
+  limit = 30,
+): SeoulHub[] {
+  if (origins.length === 0) return [];
+
+  const center = {
+    latitude: origins.reduce((sum, origin) => sum + origin.latitude, 0) / origins.length,
+    longitude: origins.reduce((sum, origin) => sum + origin.longitude, 0) / origins.length,
+  };
+  const seenNames = new Set<string>();
+
+  return [...hubs]
+    .sort((left, right) => haversineKm(center, left) - haversineKm(center, right))
+    .filter((hub) => {
+      const normalizedName = hub.name.replace(/역$/, "").trim();
+      if (seenNames.has(normalizedName)) return false;
+      seenNames.add(normalizedName);
+      return true;
+    })
+    .slice(0, Math.max(1, limit));
+}
