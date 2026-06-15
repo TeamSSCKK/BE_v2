@@ -81,9 +81,9 @@ create table if not exists public.place_candidate (
   longitude double precision not null check (longitude between 126.734 and 127.270),
   avg_car_travel_time integer check (avg_car_travel_time is null or avg_car_travel_time >= 0),
   avg_pub_travel_time integer check (avg_pub_travel_time is null or avg_pub_travel_time >= 0),
-  max_travel_time integer check (max_travel_time is null or max_travel_time >= 0),
-  travel_time_stddev numeric(8, 2) check (travel_time_stddev is null or travel_time_stddev >= 0),
-  fairness_score numeric(10, 4) check (fairness_score is null or fairness_score >= 0),
+  max_travel_minutes integer check (max_travel_minutes is null or max_travel_minutes >= 0),
+  travel_time_stddev_minutes numeric(8, 2) check (travel_time_stddev_minutes is null or travel_time_stddev_minutes >= 0),
+  recommendation_score numeric(10, 4) check (recommendation_score is null or recommendation_score >= 0),
   recommendation_rank integer check (recommendation_rank is null or recommendation_rank > 0),
   calculation_method varchar(30) not null default 'DISTANCE_FALLBACK'
     check (calculation_method in ('DISTANCE_FALLBACK', 'ODSAY')),

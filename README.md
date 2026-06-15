@@ -88,6 +88,7 @@ https://oufchidafmrxgympbcqo.supabase.co/functions/v1/health
 
 - `202606150001_initial_schema.sql`: 새 프로젝트용 전체 스키마
 - `202606150002_upgrade_existing_schema.sql`: 기존 `DB SQL.txt` 구조를 추천 API에 맞게 확장
+- `202606150003_fix_recommendation_metric_columns.sql`: 기존 컬럼과 충돌하지 않는 분 단위 추천 지표 추가
 
 Supabase CLI 연결 후 적용합니다.
 

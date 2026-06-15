@@ -24,8 +24,9 @@ alter table public.participant
 
 alter table public.place_candidate
   add column if not exists category text,
-  add column if not exists max_travel_time integer,
-  add column if not exists travel_time_stddev numeric(8, 2),
+  add column if not exists max_travel_minutes integer,
+  add column if not exists travel_time_stddev_minutes numeric(8, 2),
+  add column if not exists recommendation_score numeric(10, 4),
   add column if not exists recommendation_rank integer,
   add column if not exists calculation_method varchar(30) not null default 'DISTANCE_FALLBACK',
   add column if not exists created_at timestamptz not null default now();
