@@ -28,6 +28,13 @@ function includesTerm(text: string, term: string): boolean {
   return text.toLocaleLowerCase().includes(term.trim().toLocaleLowerCase());
 }
 
+function isMealRestaurant(category: string): boolean {
+  const excludedCategories = ["카페", "디저트", "베이커리", "베이글", "아이스크림"];
+  return !excludedCategories.some((categoryName) =>
+    category.includes(categoryName)
+  );
+}
+
 export function rankRestaurants(
   center: { latitude: number; longitude: number },
   restaurants: RestaurantSearchItem[],
@@ -43,6 +50,7 @@ export function rankRestaurants(
 
   return restaurants
     .flatMap((restaurant) => {
+      if (!isMealRestaurant(restaurant.category)) return [];
       const searchable = `${restaurant.name} ${restaurant.category}`;
       if (restrictions.some((restriction) => includesTerm(searchable, restriction.value))) {
         return [];
@@ -84,4 +92,3 @@ export function rankRestaurants(
       recommendationRank: index + 1,
     }));
 }
-

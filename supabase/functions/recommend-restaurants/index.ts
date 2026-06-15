@@ -34,6 +34,7 @@ function buildQueries(placeName: string, preferences: RestaurantPreference[]): s
 
   return [
     `${placeName} 맛집`,
+    `${placeName} 음식점`,
     ...preferredFoods.map((food) => `${placeName} ${food} 맛집`),
   ];
 }
@@ -207,4 +208,3 @@ Deno.serve(async (request) => {
     return errorResponse(request, error);
   }
 });
-

@@ -55,3 +55,12 @@ Deno.test("반경 밖 식당은 제외한다", () => {
   assertEquals(result.length, 0);
 });
 
+Deno.test("카페와 디저트 업종은 식당 후보에서 제외한다", () => {
+  const result = rankRestaurants(
+    center,
+    [restaurant("카페", "카페,디저트>카페", 37.4980)],
+    [],
+  );
+
+  assertEquals(result.length, 0);
+});
