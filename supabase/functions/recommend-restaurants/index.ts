@@ -32,11 +32,13 @@ function buildQueries(placeName: string, preferences: RestaurantPreference[]): s
       .filter(Boolean),
   )].slice(0, 4);
 
-  return [
+  const defaultFoods = ["한식", "일식", "중식", "양식"];
+  return [...new Set([
     `${placeName} 맛집`,
     `${placeName} 음식점`,
     ...preferredFoods.map((food) => `${placeName} ${food} 맛집`),
-  ];
+    ...defaultFoods.map((food) => `${placeName} ${food} 맛집`),
+  ])].slice(0, 6);
 }
 
 Deno.serve(async (request) => {
