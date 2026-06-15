@@ -83,3 +83,25 @@ https://oufchidafmrxgympbcqo.supabase.co/functions/v1/health
   "timestamp": "2026-06-15T00:00:00.000Z"
 }
 ```
+
+## DB 마이그레이션
+
+- `202606150001_initial_schema.sql`: 새 프로젝트용 전체 스키마
+- `202606150002_upgrade_existing_schema.sql`: 기존 `DB SQL.txt` 구조를 추천 API에 맞게 확장
+
+Supabase CLI 연결 후 적용합니다.
+
+```powershell
+supabase link --project-ref oufchidafmrxgympbcqo
+supabase db push
+```
+
+## 장소 추천 API
+
+장소 추천 함수는 `supabase/functions/recommend-places`에 있습니다.
+
+```powershell
+supabase functions serve recommend-places --env-file .env.local
+```
+
+요청·응답과 추천 점수 계산식은 [`docs/place-recommendation-api.md`](docs/place-recommendation-api.md)를 참고합니다.

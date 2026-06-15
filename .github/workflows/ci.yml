@@ -1,0 +1,25 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  deno:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Type check
+        run: deno check supabase/functions/health/index.ts supabase/functions/recommend-places/index.ts
+
+      - name: Test
+        run: deno test supabase/functions/recommend-places/scoring_test.ts
+

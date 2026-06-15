@@ -3,3 +3,5 @@ project_id = "oufchidafmrxgympbcqo"
 [functions.health]
 verify_jwt = false
 
+[functions.recommend-places]
+verify_jwt = false
