@@ -11,3 +11,15 @@ verify_jwt = false
 
 [functions.recommend-restaurants]
 verify_jwt = false
+
+[functions.create-meeting]
+verify_jwt = false
+
+[functions.join-meeting]
+verify_jwt = false
+
+[functions.cast-vote]
+verify_jwt = false
+
+[functions.close-vote]
+verify_jwt = false
