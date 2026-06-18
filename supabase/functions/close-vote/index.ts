@@ -44,26 +44,14 @@ serve(async (req) => {
     }
 
     // 1. final_decision 처리 (Upsert)
-    const { data: existingDecision, error: selectError } = await supabase
+    const { error: upsertError } = await supabase
       .from("final_decision")
-      .select("decision_id")
-      .eq("meeting_id", meetingId)
-      .maybeSingle();
+      .upsert(
+        { meeting_id: meetingId, ...decisionData },
+        { onConflict: "meeting_id" }
+      );
 
-    if (selectError) throw new Error(selectError.message);
-
-    if (existingDecision) {
-      const { error: updateError } = await supabase
-        .from("final_decision")
-        .update(decisionData)
-        .eq("meeting_id", meetingId);
-      if (updateError) throw new Error(updateError.message);
-    } else {
-      const { error: insertError } = await supabase
-        .from("final_decision")
-        .insert([{ meeting_id: meetingId, ...decisionData }]);
-      if (insertError) throw new Error(insertError.message);
-    }
+    if (upsertError) throw new Error(upsertError.message);
 
     // 2. meeting 상태 업데이트
     const { error: statusUpdateError } = await supabase

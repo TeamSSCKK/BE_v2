@@ -65,10 +65,12 @@ serve(async (req) => {
 
     // 5. participant 테이블의 투표 완료 여부 상태(yn) 업데이트
     const updateColumn = voteType === "PLACE" ? "place_vote_yn" : "restaurant_vote_yn";
-    await supabase
+    const { error: updateError } = await supabase
       .from("participant")
       .update({ [updateColumn]: true })
-      .eq("participant_id", participantId); 
+      .eq("participant_id", participantId);
+
+    if (updateError) throw new Error(`참가자 상태 업데이트 실패: ${updateError.message}`);
 
     return new Response(
       JSON.stringify({ message: "투표가 성공적으로 기록되었습니다." }),
